@@ -2,15 +2,25 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
-import { HOME_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE } from '@/routes/route';
+import { DASHBOARD_ROUTE, HOME_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE } from '@/routes/route';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '@/redux/auth/authSlice';
+import { useRouter } from 'next/navigation';
+
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-
+  const dispatch = useDispatch();
+  const router = useRouter()
+  const {user} = useSelector((state)=>state.auth);
+function handleLogout(){
+   dispatch(logout())
+   router.push(LOGIN_ROUTE)
+   
+}
   const navLinks = [
-    { name: 'Home', href: HOME_ROUTE },
-    { name: 'Login', href:LOGIN_ROUTE },
-    { name: 'Register', href:REGISTER_ROUTE }
+    user ? ({ name:"Dashboard", href:DASHBOARD_ROUTE}) : {name:"login",href:LOGIN_ROUTE } ,
+ 
   ];
 
   return (
@@ -19,22 +29,30 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="text-xl font-bold text-indigo-600 hover:text-indigo-700">
-              CyberGuard
+            <Link href="/" className="text-xl font-Nunito-ExtraBold text-indigo-600 hover:text-indigo-700">
+              CyberSecurity
             </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
+            {navLinks.map((link,index) => (
               <Link
-                key={link.name}
+                key={index}
                 href={link.href}
-                className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-Nunito-SemiBold transition-colors duration-200"
               >
                 {link.name}
               </Link>
             ))}
+          {user ? (<button onClick={handleLogout} className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+          >logout</button>) : (    <Link
+           
+            href={REGISTER_ROUTE}
+            className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-Nunito-SemiBold transition-colors duration-200"
+          >
+          Register
+          </Link>)}
           </div>
 
           {/* Mobile menu button */}

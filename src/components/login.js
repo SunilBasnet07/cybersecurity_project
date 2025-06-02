@@ -1,38 +1,67 @@
 'use client'
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { login } from '@/redux/auth/authAction';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
-import { HOME_ROUTE } from '@/routes/route';
 import toast from 'react-hot-toast';
+import Spinner from './Spinner';
+import { getCaptchaNumber } from '@/api/auth';
+import Link from 'next/link';
+import { DASHBOARD_ROUTE, FORGOTPASSWORD_ROUTE} from '@/routes/route';
 
 const Login = () => {
 
   const [showPassword, setShowPassword] = useState(false);
+  const [question, setQuestion] = useState(null);
+  const [correctAnswer, setCorrectAnswer] = useState(false);
+  // const [refreshCaptchaData, setRefreshCaptchaData] = useState(question);
   const { register, handleSubmit, formState: { errors }, } = useForm();
   const dispatch = useDispatch()
   const router = useRouter();
-  const { user, error } = useSelector((state) => state.auth);
-  function submitForm(data) {
-    dispatch(login(data))
-  }
-  useEffect(() => {
-    if (user) {
-      toast.success("Login Successfull.", {
-        autoClose: 2000,
-      })
-      router.push(HOME_ROUTE)
-    }
-    if (error) {
-      toast.error(error, {
-        autoClose: 2000,
-      })
+  const { user, loading, error } = useSelector((state) => state.auth);
 
-    }
-  }, [user,error])
+  function refreshCaptcha() {
+    getCaptchaNumber().then((data) => {
+      setQuestion(data.question);
+      setCorrectAnswer(data.answer);
+    }).catch(error => {
+      console.log(error.message);
+    })
+
+  }
+
+  useEffect(() => {
+    refreshCaptcha();
+  }, []);
+
+  function submitForm(data) {
+    const response = dispatch(login({ ...data, correctAnswer })).then((userData) => {
+
+      if (userData.type.includes("auth/login/fulfilled")) {
+       
+          toast.success("Login Successfull", {
+            autoClose: 1500,
+          })
+          router.push(DASHBOARD_ROUTE)
+        
+
+      }
+    }).catch((error) => {
+      toast.error(error.message)
+    })
+
+
+  }
+useEffect(()=>{
+  if (error) {
+    toast.error(error, {
+      autoClose: 1500,
+    })
+  }
+},[error])
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -45,6 +74,8 @@ const Login = () => {
       }
     }
   };
+
+
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -148,11 +179,12 @@ const Login = () => {
               </label>
               <motion.button
                 type="button"
+                onClick={refreshCaptcha}
                 className="text-sm text-indigo-600 hover:text-indigo-500 font-medium"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Refresh
+                <RefreshCw className='h-4 w-4' />
               </motion.button>
             </div>
             <div className="flex items-center space-x-4">
@@ -161,18 +193,23 @@ const Login = () => {
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 400 }}
               >
-
+                <p className='text-sm'>{question}</p>
               </motion.div>
               <input
                 id="captcha"
                 name="captcha"
                 type="text"
-                required
+                {...register("captchaAnswer", {
+                  required: "Captcha is required."
+                })}
                 className="flex-1 appearance-none block px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
                 placeholder="Enter captcha"
               />
+
             </div>
+            {errors.captchaAnswer && (<p className='text-red-500 flex justify-center ml-10 text-[12px] px-1 py-1'>  <AlertCircle className="h-4 w-4 mr-1" />{errors.captchaAnswer.message}</p>)}
           </motion.div>
+
 
           {/* Remember Me & Forgot Password */}
           <motion.div
@@ -195,9 +232,9 @@ const Login = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                Forgot your password?
-              </a>
+              <Link href={FORGOTPASSWORD_ROUTE} className="font-medium text-indigo-600 hover:text-indigo-500">
+                Forgot password?
+              </Link>
             </motion.div>
           </motion.div>
 
@@ -205,11 +242,12 @@ const Login = () => {
           <motion.div variants={itemVariants}>
             <motion.button
               type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
+              disabled={loading}
+              className="w-full flex disabled:cursor-not-allowed disabled:bg-slate-200 justify-center gap-3 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              Sign in
+              Sign In  {loading && <Spinner />}
             </motion.button>
           </motion.div>
         </motion.form>
@@ -229,6 +267,7 @@ const Login = () => {
           </p>
         </motion.div>
       </motion.div>
+
     </motion.div>
   );
 };
