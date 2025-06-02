@@ -8,7 +8,6 @@ import toast from 'react-hot-toast';
 import Spinner from './Spinner';
 import OTPPopup from './OTPPopup';
 import { signUp, getCaptchaByString } from '@/api/auth';
-import { setToken } from '@/api/token';
 
 
 
@@ -83,20 +82,16 @@ const Register = () => {
 
     try {
       const response = await signUp({ ...data, correctAnswer });
-      
-      if (response?.token) {
-        setToken(response.token);
-        toast.success("User created successfully, please check your email for OTP verification.", {
-          autoClose: 1500,
-        });
-        setIsOTPOpen(true);
-      } else {
-        throw new Error("No token received from server");
-      }
+
+      localStorage.setItem("authToken", response?.token);
+      toast.success("User created successfully, please check your email form OTP verification.", {
+        autoClose: 1500,
+      });
+      setIsOTPOpen(true);
 
     } catch (error) {
       // Extract error message from error object
-      const errorMessage = error?.response?.data?.message || error?.message || "An error occurred during registration";
+      const errorMessage = error?.response?.data || error?.message || "An error occurred during registration";
       toast.error(errorMessage, {
         autoClose: 1500,
       });
