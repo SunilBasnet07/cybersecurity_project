@@ -1,6 +1,3 @@
-export function getTokenFromLocalStorage() {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem("authToken");
-    }
-    return null;
-  }
+'use client'
+export const userToken = typeof window !== 'undefined' ? localStorage.getItem("authToken") : null;
+// export const token = localStorage.getItem("authToken");

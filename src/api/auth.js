@@ -3,7 +3,7 @@ import baseApiUrl from "@/config/apiUrl";
 
 import axios from "axios";
 
-import { getToken, getTokenFromLocalStorage } from "./token";
+
 
 
 
@@ -27,8 +27,9 @@ const getCaptchaByString=async()=>{
     return response.data;
 }
 const verifyOTP=async(otp)=>{
-   const userToken = getTokenFromLocalStorage();
-    console.log(userToken);
+
+   const userToken = localStorage.getItem("authToken");
+   console.log(userToken);
     const response = await axios.put(`${baseApiUrl}/api/auth/verify-otp`,{otp},{
        
         headers:{
