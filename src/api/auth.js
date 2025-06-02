@@ -3,13 +3,13 @@ import baseApiUrl from "@/config/apiUrl";
 
 import axios from "axios";
 
-import { getToken } from "./token";
+import { getToken, getTokenFromLocalStorage } from "./token";
 
 
 
 const signIn = async(data)=>{
 
-    console.log(baseApiUrl);
+    
     const response = await axios.post(`${baseApiUrl}/api/auth/login`,data);
     return response;
 }
@@ -27,12 +27,12 @@ const getCaptchaByString=async()=>{
     return response.data;
 }
 const verifyOTP=async(otp)=>{
-   
-    console.log(getToken);
+   const userToken = getTokenFromLocalStorage();
+    console.log(userToken);
     const response = await axios.put(`${baseApiUrl}/api/auth/verify-otp`,{otp},{
        
         headers:{
-            Authorization: `Bearer ${getToken}`
+            Authorization: `Bearer ${userToken}`
         },
     });
   
