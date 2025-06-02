@@ -1,4 +1,4 @@
-'use clent'
+'use client'
 import baseApiUrl from "@/config/apiUrl";
 
 import axios from "axios";
