@@ -28,7 +28,7 @@ const getCaptchaByString=async()=>{
     return response.data;
 }
 const verifyOTP=async(otp)=>{
-console.log(userToken);
+console.log("token:",userToken);
 
     const response = await axios.put(`${baseApiUrl}/api/auth/verify-otp`,{otp},{
        
