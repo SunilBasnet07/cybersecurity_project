@@ -6,11 +6,13 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { useSelector } from 'react-redux';
+import Spinner from './Spinner';
 
 const OTPPopup = ({ isOpen, onClose}) => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(60);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
+  const [loading,setLoading]=useState(false);
   const { handleSubmit } = useForm();
   const router = useRouter();
   const {email}=useSelector((state)=>state.auth)
@@ -52,6 +54,7 @@ const OTPPopup = ({ isOpen, onClose}) => {
   };
 
   const submitForm = async () => {
+    setLoading(true);
     try {
       
       const jsonOTP = { otp: otp.join('') };
@@ -65,6 +68,8 @@ const OTPPopup = ({ isOpen, onClose}) => {
       toast.error(error.response?.data, {
         autoClose: 2000,
       })
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -147,9 +152,10 @@ const OTPPopup = ({ isOpen, onClose}) => {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          disabled={loading}
+          className="w-full disabled:cursor-not-allowed disabled:bg-slate-100 flex gap-3 items-center justify-center bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
         >
-          Verify
+          {loading ? <Spinner/> : "Verify"}
         </button>
       </div>
     </form>
