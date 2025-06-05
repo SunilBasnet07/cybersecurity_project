@@ -1,17 +1,29 @@
 'use client';
-import { verifyOTP } from '@/api/auth';
+import { resendOTPEmail, verifyOTP } from '@/api/auth';
 import { LOGIN_ROUTE } from '@/routes/route';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import { useSelector } from 'react-redux';
 
-const OTPPopup = ({ isOpen, onClose }) => {
+const OTPPopup = ({ isOpen, onClose}) => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(60);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const { handleSubmit } = useForm();
   const router = useRouter();
+  const {email}=useSelector((state)=>state.auth)
+
+  // Add effect to reset timer when popup opens
+  useEffect(() => {
+    if (isOpen) {
+      setTimer(60);
+      setIsResendDisabled(true);
+      setOtp(['', '', '', '', '', '']);
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     let countdown;
     if (isResendDisabled && timer > 0) {
@@ -41,7 +53,7 @@ const OTPPopup = ({ isOpen, onClose }) => {
 
   const submitForm = async () => {
     try {
-      setTimer(60)
+      
       const jsonOTP = { otp: otp.join('') };
 
       const response = await verifyOTP(jsonOTP);
@@ -55,14 +67,31 @@ const OTPPopup = ({ isOpen, onClose }) => {
       })
     }
   };
-  function handleResentClick() {
-   
-    setOtp(['', '', '', '', '', '']);
-    setTimer(60);
-    setIsResendDisabled(true);
-  }
+
+  const handleResentClick = async () => {
+    try {
+      const response = await resendOTPEmail();
+      toast.success("OTP has been resent to your email", {
+        autoClose: 2000,
+      });
+      setOtp(['', '', '', '', '', '']);
+      setTimer(60);
+      setIsResendDisabled(true);
+    } catch (error) {
+      const errorMessage = error.response?.data || error.message || "Failed to resend OTP";
+      toast.error(errorMessage, {
+        autoClose: 2000,
+      });
+      // If token is not found, close the popup and redirect to login
+      if (error.message === 'Authentication token not found') {
+        onClose();
+        router.push(LOGIN_ROUTE);
+      }
+    }
+  };
 
   if (!isOpen) return null;
+
 
   return (
     <form onSubmit={handleSubmit(submitForm)} className="fixed inset-0 z-50 flex items-center justify-center">
@@ -81,7 +110,7 @@ const OTPPopup = ({ isOpen, onClose }) => {
 
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Enter Verification Code</h2>
-          <p className="text-gray-600 text-sm">We've sent a 6-digit code to your email</p>
+          <p className="text-gray-600 text-sm">We've sent a 6-digit code to <strong>{email}</strong></p>
         </div>
 
         <div className="flex justify-between gap-2 mb-8">
@@ -108,12 +137,7 @@ const OTPPopup = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 className="text-blue-600 font-semibold hover:text-blue-700 transition-colors"
-                onClick={handleResentClick
-                  // setOtp(['', '', '', '', '', '']);
-                  // setTimer(60);
-                  // setIsResendDisabled(true);
-                  // trigger resend logic here
-                }
+                onClick={handleResentClick}
               >
                 Resend Code
               </button>

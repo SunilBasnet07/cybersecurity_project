@@ -13,7 +13,8 @@ const DashboardPage = () => {
       }
     },[user])
   return (
-    <div className='mt-16'>Wellcome to DashboardPage</div>
+    <div className='mt-16 px-3 py-3'> <p>Hi ! <strong>{user?.name}</strong></p>
+      Wellcome to DashboardPage</div>
   )
 }
 

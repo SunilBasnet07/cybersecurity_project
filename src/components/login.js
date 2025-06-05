@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 import Spinner from './Spinner';
 import { getCaptchaNumber } from '@/api/auth';
 import Link from 'next/link';
-import { DASHBOARD_ROUTE, FORGOTPASSWORD_ROUTE} from '@/routes/route';
+import { DASHBOARD_ROUTE, FORGOTPASSWORD_ROUTE } from '@/routes/route';
 
 const Login = () => {
 
@@ -21,7 +21,7 @@ const Login = () => {
   const { register, handleSubmit, formState: { errors }, } = useForm();
   const dispatch = useDispatch()
   const router = useRouter();
-  const { user, loading, error } = useSelector((state) => state.auth);
+  const { user, loading,  } = useSelector((state) => state.auth);
 
   function refreshCaptcha() {
     getCaptchaNumber().then((data) => {
@@ -34,34 +34,46 @@ const Login = () => {
   }
 
   useEffect(() => {
+
     refreshCaptcha();
+
+
   }, []);
 
   function submitForm(data) {
+    
     const response = dispatch(login({ ...data, correctAnswer })).then((userData) => {
-
+console.log(userData);
       if (userData.type.includes("auth/login/fulfilled")) {
-       
-          toast.success("Login Successfull", {
-            autoClose: 1500,
-          })
-          router.push(DASHBOARD_ROUTE)
-        
 
+        toast.success("Login Successfull", {
+          autoClose: 1500,
+        })
+        router.push(DASHBOARD_ROUTE)
+
+
+      }else{
+        toast.error(userData.payload, {
+          autoClose: 1500,
+        })
       }
+      
+
     }).catch((error) => {
-      toast.error(error.message)
+      console.log(error.payload)
     })
 
 
   }
-useEffect(()=>{
-  if (error) {
-    toast.error(error, {
-      autoClose: 1500,
-    })
-  }
-},[error])
+
+
+  // useEffect(() => {
+  //   if (error) {
+  //     toast.error(error, {
+  //       autoClose: 1500,
+  //     })
+  //   }
+  // }, [error])
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },

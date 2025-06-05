@@ -8,6 +8,8 @@ import toast from 'react-hot-toast';
 import Spinner from './Spinner';
 import OTPPopup from './OTPPopup';
 import { signUp, getCaptchaByString } from '@/api/auth';
+import { useDispatch } from 'react-redux';
+import { getEmail } from '@/redux/auth/authSlice';
 
 
 
@@ -15,6 +17,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isOTPOpen, setIsOTPOpen] = useState(false);
+  const dispatch = useDispatch();
   const [question, setQuestion] = useState(null);
   const [loading, setLoading] = useState(false);
   const [correctAnswer, setCorrectAnswer] = useState(null);
@@ -78,8 +81,8 @@ const Register = () => {
   const strengthLevel = getStrengthLevel();
 
   async function submitForm(data) {
+    dispatch(getEmail(data.email))
     setLoading(true);
-
     try {
       const response = await signUp({ ...data, correctAnswer });
 
@@ -87,7 +90,10 @@ const Register = () => {
       toast.success("User created successfully, please check your email form OTP verification.", {
         autoClose: 1500,
       });
-      setIsOTPOpen(true);
+      if(response){
+        setIsOTPOpen(true);
+      }
+     
 
     } catch (error) {
       // Extract error message from error object
@@ -100,6 +106,7 @@ const Register = () => {
       setLoading(false);
     }
   }
+
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -205,10 +212,10 @@ const Register = () => {
                         const emailPart = email.slice(0, 5);
 
                         if (pass.includes(usernamePart)) {
-                          return "Password must not include the first 5 characters of the username.";
+                          return "Password should not include the first 5 characters of the username.";
                         }
                         if (pass.includes(emailPart)) {
-                          return "Password must not include the first 5 characters of the email.";
+                          return "Password should not include the first 5 characters of the email.";
                         }
 
                         return true;
@@ -481,6 +488,7 @@ const Register = () => {
       <OTPPopup
         isOpen={isOTPOpen}
         onClose={() => setIsOTPOpen(false)}
+
 
       />
     </motion.div>
