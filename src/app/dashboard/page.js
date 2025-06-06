@@ -1,5 +1,5 @@
 'use client'
-import { LOGIN_ROUTE } from '@/routes/route';
+import { DASHBOARD_ROUTE, LOGIN_ROUTE } from '@/routes/route';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux';
@@ -11,7 +11,10 @@ const DashboardPage = () => {
       if(!user){
        router.push(LOGIN_ROUTE)
       }
-    },[user])
+      // if(user){
+      //   router.push(DASHBOARD_ROUTE)
+      // }
+    },[user,router])
   return (
     <div className='mt-16 px-3 py-3'> <p>Hi ! <strong>{user?.name}</strong></p>
       Wellcome to DashboardPage</div>

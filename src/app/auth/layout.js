@@ -1,15 +1,22 @@
-'use client'
+'use client';
 
-import { useSelector } from 'react-redux'
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
 
-const layout = ({children}) => {
-    const {user}=useSelector((state)=>state.auth)
-   
+import { DASHBOARD_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE } from '@/routes/route';
 
+const Layout = ({ children }) => {
+  const router = useRouter();
+  const { user } = useSelector((state) => state.auth);
 
-  return (
-    <div>{!user && children}</div>
-  )
-}
+  useEffect(() => {
+    if (user) {
+      router.push(DASHBOARD_ROUTE);
+    } 
+  }, [user, router]);
 
-export default layout
+  return <div>{!user && children}</div>;
+};
+
+export default Layout;
