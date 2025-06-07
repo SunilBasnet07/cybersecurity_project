@@ -15,13 +15,12 @@ const authSlice = createSlice({
             if (typeof window !== undefined) {
                 localStorage.removeItem("authToken")
             }
+            state.email=null;
         },
         getEmail:(state,action)=>{
             state.email = action.payload;
         },
-        clearEmail:(state)=>{
-            state.email = null;
-        }
+      
 
     },
     extraReducers: (builder) =>

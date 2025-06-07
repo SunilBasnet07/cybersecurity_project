@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import { resetPassword } from '@/api/auth';
 import { useRouter } from 'next/navigation';
 import Spinner from './Spinner';
+import { clsx } from 'clsx';
 
 const ResetPassword = ({ userId, otp }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -162,9 +163,12 @@ const ResetPassword = ({ userId, otp }) => {
                     pattern: {
                       value: PASSWORD_REGEX,
                       message: "Password must contain uppercase, lowercase, special character and number."
-                    }
+                    },
+               
                   })}
-                  className="appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                  className={clsx("appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none  transition duration-150 ease-in-out",
+                    errors.password ?"border-red-500" : " focus:ring-indigo-500 focus:border-indigo-500"
+                  )}
                   placeholder="Enter new password"
                 />
                 <motion.button
@@ -282,7 +286,9 @@ const ResetPassword = ({ userId, otp }) => {
                     required: "Please confirm your password.",
                     validate: (value) => value === password || "Passwords do not match."
                   })}
-                  className="appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                  className={clsx("appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none  transition duration-150 ease-in-out",
+                    errors.confirmPassword ?"border-red-500" : " focus:ring-indigo-500 focus:border-indigo-500"
+                  )}
                   placeholder="Confirm new password"
                 />
                 <motion.button

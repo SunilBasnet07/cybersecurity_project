@@ -10,7 +10,9 @@ import OTPPopup from './OTPPopup';
 import { signUp, getCaptchaByString } from '@/api/auth';
 import { useDispatch } from 'react-redux';
 import { getEmail } from '@/redux/auth/authSlice';
-
+import { clsx } from 'clsx';
+import { LOGIN_ROUTE } from '@/routes/route';
+import Link from 'next/link';
 
 
 const Register = () => {
@@ -173,7 +175,9 @@ const Register = () => {
                     {...register("name", {
                       required: "Username is required."
                     })}
-                    className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                    className={clsx("appearance-none block w-full pl-10 pr-3 py-2 border placeholder:text-sm border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none transition duration-150 ease-in-out",
+                      errors.name ? "border-red-500" : " focus:ring-indigo-500 focus:border-indigo-500"
+                    )}
                     placeholder="username"
                   />
                 </div>
@@ -221,7 +225,9 @@ const Register = () => {
                         return true;
                       }
                     })}
-                    className="appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                    className={clsx("appearance-none block w-full pl-10 placeholder:text-sm pr-10 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none  transition duration-150 ease-in-out",
+                      errors.password ? "border-red-500" : " focus:ring-indigo-500 focus:border-indigo-500"
+                    )}
                     placeholder="Create a password"
                   />
                   <motion.button
@@ -340,7 +346,9 @@ const Register = () => {
                         message: "Provide a valid email address."
                       }
                     })}
-                    className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                    className={clsx("appearance-none block placeholder:text-sm w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none  transition duration-150 ease-in-out",
+                      errors.email ? "border-red-500" : " focus:ring-indigo-500 focus:border-indigo-500"
+                    )}
                     placeholder="you@example.com"
                   />
                 </div>
@@ -364,7 +372,9 @@ const Register = () => {
                       required: "Confirm Password is required.",
                       validate: (value) => value === password || "Password do not matched."
                     })}
-                    className="appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                    className={clsx("appearance-none block w-full placeholder:text-sm pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none transition duration-150 ease-in-out",
+                      errors.confirmPassword ? "border-red-500" : " focus:ring-indigo-500 focus:border-indigo-500"
+                    )}
                     placeholder="Confirm your password"
                   />
                   <motion.button
@@ -423,7 +433,9 @@ const Register = () => {
                 {...register("captchaAnswer", {
                   required: "Captcha is required."
                 })}
-                className="flex-1 appearance-none block px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                className={clsx("flex-1 appearance-none block px-3 placeholder:text-sm py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none  transition duration-150 ease-in-out",
+                  errors.captchaAnswer ? "border-red-500" : " focus:ring-indigo-500 focus:border-indigo-500"
+                )}
                 placeholder="Enter captcha"
               />
             </div>
@@ -479,9 +491,9 @@ const Register = () => {
         >
           <p className="text-sm text-gray-600">
             Already have an account?{' '}
-            <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link href={LOGIN_ROUTE} className="font-medium text-indigo-600 hover:text-indigo-500">
               Sign in
-            </a>
+            </Link>
           </p>
         </motion.div>
       </motion.div>

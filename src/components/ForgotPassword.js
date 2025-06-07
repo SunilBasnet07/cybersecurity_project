@@ -9,6 +9,7 @@ import { LOGIN_ROUTE } from '@/routes/route';
 import { forgotPassword } from '@/api/auth';
 import toast from 'react-hot-toast';
 import Spinner from './Spinner';
+import { clsx } from 'clsx';
 
 const ForgotPassword = () => {
   const [isEmailSent, setIsEmailSent] = useState(false);
@@ -113,7 +114,9 @@ const ForgotPassword = () => {
                       message: "Please enter a valid email address."
                     }
                   })}
-                  className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                  className={clsx("appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none transition duration-150 ease-in-out",
+                    errors.email ?"border-red-500" : " focus:ring-indigo-500 focus:border-indigo-500"
+                  )}
                   placeholder="you@example.com"
                 />
               </div>

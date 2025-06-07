@@ -29,9 +29,12 @@ const getCaptchaByString = async () => {
     return response.data;
 }
 const verifyOTP = async (otp) => {
+    const userToken = localStorage.getItem('authToken');
+    if (!userToken) {
+        throw new Error('Authentication token not found');
+    }
 
-
-
+console.log(userToken);
     const response = await axios.put(`${baseApiUrl}/api/auth/verify-otp`, { otp }, {
 
         headers: {

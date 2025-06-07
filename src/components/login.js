@@ -10,18 +10,19 @@ import toast from 'react-hot-toast';
 import Spinner from './Spinner';
 import { getCaptchaNumber } from '@/api/auth';
 import Link from 'next/link';
-import { DASHBOARD_ROUTE, FORGOTPASSWORD_ROUTE } from '@/routes/route';
-
+import { DASHBOARD_ROUTE, FORGOTPASSWORD_ROUTE, REGISTER_ROUTE } from '@/routes/route';
+import { clsx } from 'clsx';
 const Login = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [question, setQuestion] = useState(null);
   const [correctAnswer, setCorrectAnswer] = useState(false);
-  // const [refreshCaptchaData, setRefreshCaptchaData] = useState(question);
+  const [lockTime, setLockTime] = useState(null);
+  const [remainingTime, setRemainingTime] = useState(null);
   const { register, handleSubmit, formState: { errors }, } = useForm();
   const dispatch = useDispatch()
   const router = useRouter();
-  const { user, loading,  } = useSelector((state) => state.auth);
+  const { user, loading, } = useSelector((state) => state.auth);
 
   function refreshCaptcha() {
     getCaptchaNumber().then((data) => {
@@ -30,50 +31,64 @@ const Login = () => {
     }).catch(error => {
       console.log(error.message);
     })
-
   }
 
   useEffect(() => {
-
     refreshCaptcha();
-
-
   }, []);
 
   function submitForm(data) {
-    
     const response = dispatch(login({ ...data, correctAnswer })).then((userData) => {
-console.log(userData);
+      console.log(userData);
       if (userData.type.includes("auth/login/fulfilled")) {
-
         toast.success("Login Successfull", {
           autoClose: 1500,
         })
         router.push(DASHBOARD_ROUTE)
-
-
-      }else{
+      } else {
         toast.error(userData.payload, {
           autoClose: 1500,
         })
-      }
-      
 
+        // Extract lock time from the error message if it exists
+        if (userData.payload && userData.payload.includes("Account locked. Email sent.")) {
+          // Set lock time to 5 minutes from now
+          const lockEndTime = new Date();
+          lockEndTime.setMinutes(lockEndTime.getMinutes() + 1);
+          setLockTime(lockEndTime);
+        }
+      }
     }).catch((error) => {
       console.log(error.payload)
     })
-
-
   }
 
+  // Lock timer effect
+  useEffect(() => {
+    let interval;
+    if (lockTime) {
+      interval = setInterval(() => {
+        const now = new Date();
+        const diff = lockTime.getTime() - now.getTime();
+        
+        if (diff <= 0) {
+          setRemainingTime(null);
+          setLockTime(null);
+          clearInterval(interval);
+        } else {
+          const minutes = Math.floor(diff / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+          setRemainingTime(`${minutes}m ${seconds}s`);
+        }
+      }, 1000);
+    }
 
-  // useEffect(() => {
-  //   if (error) {
-  //     toast.error(error, {
-  //       autoClose: 1500,
-  //     })
-  //   }
-  // }, [error])
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [lockTime]);
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -86,8 +101,6 @@ console.log(userData);
       }
     }
   };
-
-
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -129,15 +142,17 @@ console.log(userData);
               Email address
             </label>
             <div className="mt-1">
+          
               <input
                 id="email"
                 name="email"
                 type="email"
                 {...register("email", {
                   required: "Email is required.",
-
                 })}
-                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                className={clsx("appearance-none block  placeholder:text-sm w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none  transition duration-150 ease-in-out",
+                 errors.email ?"border-red-500" : " focus:ring-indigo-500 focus:border-indigo-500"
+                )}
                 placeholder="Enter your email"
               />
             </div>
@@ -154,17 +169,20 @@ console.log(userData);
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
+                disabled={!!remainingTime}
                 {...register("password", {
                   required: "Password is required.",
-
                 })}
-                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out pr-10"
+                className={clsx("appearance-none block w-full px-3 py-2 border placeholder:text-sm border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none  transition duration-150 ease-in-out pr-10 disabled:border-red-500 disabled:bg-gray-100 disabled:cursor-not-allowed",
+                  errors.password ? "border-red-500" : " focus:ring-indigo-500 focus:border-indigo-500"
+                )}
                 placeholder="Enter your password"
               />
               <motion.button
                 type="button"
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 onClick={() => setShowPassword(!showPassword)}
+                disabled={!!remainingTime}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -175,7 +193,15 @@ console.log(userData);
                 )}
               </motion.button>
             </div>
-            {errors.password && (<p className='text-red-500 flex text-[12px] px-1 py-1'>  <AlertCircle className="h-4 w-4 mr-1" />{errors.password.message}</p>)}
+            {errors.password && (<p className='text-red-500 flex text-[12px] px-1 py-1'><AlertCircle className="h-4 w-4 mr-1" />{errors.password.message}</p>)}
+            {remainingTime && (
+             
+                <p className="text-red-500 flex text-[12px] px-1 py-1">
+                  <AlertCircle className="h-4 w-4 mr-1" />
+                  Account locked. Try again in {remainingTime}
+                </p>
+              
+            )}
           </motion.div>
 
           {/* Captcha Section */}
@@ -193,6 +219,8 @@ console.log(userData);
                 type="button"
                 onClick={refreshCaptcha}
                 className="text-sm text-indigo-600 hover:text-indigo-500 font-medium"
+                  
+               
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -214,7 +242,9 @@ console.log(userData);
                 {...register("captchaAnswer", {
                   required: "Captcha is required."
                 })}
-                className="flex-1 appearance-none block px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                className={clsx("flex-1 appearance-none block px-3 py-2 border border-gray-300 placeholder:text-sm rounded-md shadow-sm placeholder-gray-400 focus:outline-none  transition duration-150 ease-in-out",
+                  errors.captchaAnswer ? "border-red-500 " : " focus:ring-indigo-500  focus:border-indigo-500"
+                )}
                 placeholder="Enter captcha"
               />
 
@@ -273,9 +303,9 @@ console.log(userData);
         >
           <p className="text-sm text-gray-600">
             Don't have an account?{' '}
-            <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link href={REGISTER_ROUTE} className="font-medium hover:underline text-indigo-600 hover:text-indigo-500">
               Sign up
-            </a>
+            </Link>
           </p>
         </motion.div>
       </motion.div>
