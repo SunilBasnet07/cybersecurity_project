@@ -35,7 +35,7 @@ const Login = () => {
 
   useEffect(() => {
     refreshCaptcha();
-  }, [question]);
+  }, []);
 
   function submitForm(data) {
     const response = dispatch(login({ ...data, correctAnswer })).then((userData) => {
