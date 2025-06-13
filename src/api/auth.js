@@ -34,7 +34,7 @@ const verifyOTP = async (otp) => {
         throw new Error('Authentication token not found');
     }
 
-console.log(userToken);
+
     const response = await axios.put(`${baseApiUrl}/api/auth/verify-otp`, { otp }, {
 
         headers: {

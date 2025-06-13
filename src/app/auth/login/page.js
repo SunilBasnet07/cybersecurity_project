@@ -1,5 +1,6 @@
 import Login from '@/components/login'
 import React from 'react'
+import Image from 'next/image'
 
 const LoginPage = () => {
   return (

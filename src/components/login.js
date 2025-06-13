@@ -12,17 +12,19 @@ import { getCaptchaNumber } from '@/api/auth';
 import Link from 'next/link';
 import { DASHBOARD_ROUTE, FORGOTPASSWORD_ROUTE, REGISTER_ROUTE } from '@/routes/route';
 import { clsx } from 'clsx';
+import { clearLockTime, setLockTime, setRemainingTime } from '@/redux/auth/lockSlice';
 const Login = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [question, setQuestion] = useState(null);
   const [correctAnswer, setCorrectAnswer] = useState(false);
-  const [lockTime, setLockTime] = useState(null);
-  const [remainingTime, setRemainingTime] = useState(null);
+  // const [lockTime, setLockTime] = useState(null);
+  // const [remainingTime, setRemainingTime] = useState(null);
   const { register, handleSubmit, formState: { errors }, } = useForm();
   const dispatch = useDispatch()
   const router = useRouter();
   const { user, loading, } = useSelector((state) => state.auth);
+  const { lockTime,  remainingTime } = useSelector((state) => state.lock);
 
   function refreshCaptcha() {
     getCaptchaNumber().then((data) => {
@@ -32,13 +34,14 @@ const Login = () => {
       console.log(error.message);
     })
   }
-
+ 
   useEffect(() => {
     refreshCaptcha();
   }, []);
 
   function submitForm(data) {
-    const response = dispatch(login({ ...data, correctAnswer })).then((userData) => {
+    const response = dispatch(login({ ...data, correctAnswer }))
+    .then((userData) => {
       console.log(userData);
       if (userData.type.includes("auth/login/fulfilled")) {
         toast.success("Login Successfull", {
@@ -55,7 +58,7 @@ const Login = () => {
           // Set lock time to 5 minutes from now
           const lockEndTime = new Date();
           lockEndTime.setMinutes(lockEndTime.getMinutes() + 1);
-          setLockTime(lockEndTime);
+          dispatch(setLockTime(lockEndTime.toISOString()));
         }
       }
     }).catch((error) => {
@@ -64,31 +67,31 @@ const Login = () => {
   }
 
   // Lock timer effect
-  useEffect(() => {
-    let interval;
-    if (lockTime) {
-      interval = setInterval(() => {
-        const now = new Date();
-        const diff = lockTime.getTime() - now.getTime();
-        
-        if (diff <= 0) {
-          setRemainingTime(null);
-          setLockTime(null);
-          clearInterval(interval);
-        } else {
-          const minutes = Math.floor(diff / (1000 * 60));
-          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-          setRemainingTime(`${minutes}m ${seconds}s`);
-        }
-      }, 1000);
-    }
 
-    return () => {
-      if (interval) {
+  useEffect(() => {
+  let interval;
+  if (lockTime) {
+    interval = setInterval(() => {
+      const now = new Date();
+      const endTime = new Date(lockTime);
+      const diff = endTime.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        dispatch(clearLockTime());
         clearInterval(interval);
+      } else {
+        const minutes = Math.floor(diff / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        dispatch(setRemainingTime(`${minutes}m ${seconds}s`));
       }
-    };
-  }, [lockTime]);
+    }, 1000);
+  }
+
+  return () => {
+    if (interval) clearInterval(interval);
+  };
+}, [lockTime, dispatch]);
+
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -302,7 +305,7 @@ const Login = () => {
           whileTap={{ scale: 0.95 }}
         >
           <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
+             not have an account?
             <Link href={REGISTER_ROUTE} className="font-medium hover:underline text-indigo-600 hover:text-indigo-500">
               Sign up
             </Link>
