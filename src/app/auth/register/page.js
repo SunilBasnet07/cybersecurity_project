@@ -12,7 +12,7 @@ const RegisterPage = () => {
       
       {/* Animated Image */}
       <motion.div
-        className='w-[40%] mb-9 h-full'
+        className='w-[40%] mb-9 '
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8 }}
