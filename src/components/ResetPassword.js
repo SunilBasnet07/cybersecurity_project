@@ -11,6 +11,8 @@ import { resetPassword } from '@/api/auth';
 import { useRouter } from 'next/navigation';
 import Spinner from './Spinner';
 import { clsx } from 'clsx';
+import Image from 'next/image';
+import loginImage from '@/image/forgot.png'
 
 const ResetPassword = ({ userId, otp }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -102,11 +104,19 @@ const ResetPassword = ({ userId, otp }) => {
 
   return (
     <motion.div
-      className="min-h-screen py-8 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 sm:px-6 lg:px-8"
+      className="min-h-screen py-8 mt-8 bg-gradient-to-br from-blue-50 gap-8 to-indigo-100 flex items-center justify-center px-4 sm:px-6 lg:px-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
+            <motion.div
+              className='w-[40%]  '
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <Image src={loginImage} alt='loginImage' height={1200} width={1000} />
+            </motion.div>
       <motion.div
         className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-2xl"
         variants={containerVariants}
@@ -124,6 +134,7 @@ const ResetPassword = ({ userId, otp }) => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Login
           </Link>
+          
         </motion.div>
 
         {/* Header */}

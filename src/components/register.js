@@ -13,6 +13,8 @@ import { getEmail } from '@/redux/auth/authSlice';
 import { clsx } from 'clsx';
 import { LOGIN_ROUTE } from '@/routes/route';
 import Link from 'next/link';
+import Image from 'next/image';
+import lockImage from '@/image/lockimage.png'
 
 
 const Register = () => {
@@ -144,15 +146,21 @@ const Register = () => {
         initial="hidden"
         animate="visible"
       >
-        {/* Header */}
-        <motion.div className="text-center" variants={itemVariants}>
-          <h2 className="mt-2 text-3xl font-extrabold text-gray-900">
-            Create Account
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Join us and start your journey
-          </p>
-        </motion.div>
+   
+              <motion.div className="text-center flex justify-center ml-12 gap-3 items-center" variants={itemVariants}>
+                  <div>
+                      <h2 className="mt-4 text-3xl font-Nunito-ExtraBold text-gray-900">
+                      Create Account
+                    </h2>
+                    <p className="mt-2 text-sm font-Poppins text-gray-600">
+                      Join us and start your journey
+                    </p>
+                  </div>
+                  <div>
+                    <Image src={lockImage} alt='lockimage' height={100} width={100} />
+                  </div>
+                  </motion.div>
+    
 
         {/* Registration Form */}
         <motion.form onSubmit={handleSubmit(submitForm)} className="mt-8" variants={itemVariants}>

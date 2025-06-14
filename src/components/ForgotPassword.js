@@ -11,6 +11,7 @@ import toast from 'react-hot-toast';
 import Spinner from './Spinner';
 import { clsx } from 'clsx';
 
+
 const ForgotPassword = () => {
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -158,7 +159,7 @@ const ForgotPassword = () => {
                   Check Your Email
                 </h3>
                 <p className="text-sm text-green-600">
-                  We've sent password reset instructions to your email address.
+                  We have sent password reset instructions to your email address.
                 </p>
               </div>
             </div>
@@ -168,7 +169,7 @@ const ForgotPassword = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Didn't receive the email? Try again
+              Did not receive the email? Try again
             </motion.button>
           </motion.div>
         )}

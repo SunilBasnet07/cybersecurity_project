@@ -7,6 +7,8 @@ const ResetPasswordWrapper = async({ params,searchParams }) => {
 
 
   return <ResetPassword userId={userId} otp={otp} />
+    
+  
 }
 
 export default ResetPasswordWrapper

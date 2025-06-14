@@ -13,18 +13,19 @@ import Link from 'next/link';
 import { DASHBOARD_ROUTE, FORGOTPASSWORD_ROUTE, REGISTER_ROUTE } from '@/routes/route';
 import { clsx } from 'clsx';
 import { clearLockTime, setLockTime, setRemainingTime } from '@/redux/auth/lockSlice';
+import lockImage from '@/image/lockimage.png'
+import Image from 'next/image';
 const Login = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [question, setQuestion] = useState(null);
   const [correctAnswer, setCorrectAnswer] = useState(false);
-  // const [lockTime, setLockTime] = useState(null);
-  // const [remainingTime, setRemainingTime] = useState(null);
+
   const { register, handleSubmit, formState: { errors }, } = useForm();
   const dispatch = useDispatch()
   const router = useRouter();
   const { user, loading, } = useSelector((state) => state.auth);
-  const { lockTime,  remainingTime } = useSelector((state) => state.lock);
+  const { lockTime, remainingTime } = useSelector((state) => state.lock);
 
   function refreshCaptcha() {
     getCaptchaNumber().then((data) => {
@@ -34,63 +35,63 @@ const Login = () => {
       console.log(error.message);
     })
   }
- 
+
   useEffect(() => {
     refreshCaptcha();
   }, []);
 
   function submitForm(data) {
     const response = dispatch(login({ ...data, correctAnswer }))
-    .then((userData) => {
-      console.log(userData);
-      if (userData.type.includes("auth/login/fulfilled")) {
-        toast.success("Login Successfull", {
-          autoClose: 1500,
-        })
-        router.push(DASHBOARD_ROUTE)
-      } else {
-        toast.error(userData.payload, {
-          autoClose: 1500,
-        })
+      .then((userData) => {
+        console.log(userData);
+        if (userData.type.includes("auth/login/fulfilled")) {
+          toast.success("Login Successfull", {
+            autoClose: 1500,
+          })
+          router.push(DASHBOARD_ROUTE)
+        } else {
+          toast.error(userData.payload, {
+            autoClose: 1500,
+          })
 
-        // Extract lock time from the error message if it exists
-        if (userData.payload && userData.payload.includes("Account locked. Email sent.")) {
-          // Set lock time to 5 minutes from now
-          const lockEndTime = new Date();
-          lockEndTime.setMinutes(lockEndTime.getMinutes() + 1);
-          dispatch(setLockTime(lockEndTime.toISOString()));
+          // Extract lock time from the error message if it exists
+          if (userData.payload && userData.payload.includes("Account locked. Email sent.")) {
+            // Set lock time to 5 minutes from now
+            const lockEndTime = new Date();
+            lockEndTime.setMinutes(lockEndTime.getMinutes() + 1);
+            dispatch(setLockTime(lockEndTime.toISOString()));
+          }
         }
-      }
-    }).catch((error) => {
-      console.log(error.payload)
-    })
+      }).catch((error) => {
+        console.log(error.payload)
+      })
   }
 
   // Lock timer effect
 
   useEffect(() => {
-  let interval;
-  if (lockTime) {
-    interval = setInterval(() => {
-      const now = new Date();
-      const endTime = new Date(lockTime);
-      const diff = endTime.getTime() - now.getTime();
+    let interval;
+    if (lockTime) {
+      interval = setInterval(() => {
+        const now = new Date();
+        const endTime = new Date(lockTime);
+        const diff = endTime.getTime() - now.getTime();
 
-      if (diff <= 0) {
-        dispatch(clearLockTime());
-        clearInterval(interval);
-      } else {
-        const minutes = Math.floor(diff / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        dispatch(setRemainingTime(`${minutes}m ${seconds}s`));
-      }
-    }, 1000);
-  }
+        if (diff <= 0) {
+          dispatch(clearLockTime());
+          clearInterval(interval);
+        } else {
+          const minutes = Math.floor(diff / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+          dispatch(setRemainingTime(`${minutes}m ${seconds}s`));
+        }
+      }, 1000);
+    }
 
-  return () => {
-    if (interval) clearInterval(interval);
-  };
-}, [lockTime, dispatch]);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [lockTime, dispatch]);
 
 
   const containerVariants = {
@@ -116,36 +117,41 @@ const Login = () => {
 
   return (
     <motion.div
-      className="min-h-screen bg-gradient-to-br py-8 from-blue-50 to-indigo-100 flex items-center justify-center px-4 sm:px-6 lg:px-8"
+      className="min-h-screen bg-gradient-to-br py-4 from-blue-50 to-indigo-100 flex items-center justify-center px-4 sm:px-6 lg:px-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
       <motion.div
-        className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-2xl"
+        className="max-w-md w-full space-y-4 bg-white p-8 rounded-xl shadow-2xl"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         {/* Header */}
-        <motion.div className="text-center" variants={itemVariants}>
-          <h2 className="mt-6 text-3xl font-Nunito-ExtraBold text-gray-900">
-            Welcome Back
-          </h2>
-          <p className="mt-2 text-sm font-Poppins text-gray-600">
-            Please sign in to your account
-          </p>
+        <motion.div className="text-center flex justify-center ml-12 gap-3 items-center" variants={itemVariants}>
+          <div>
+            <h2 className="mt-4 text-3xl font-Nunito-ExtraBold text-gray-900">
+              Welcome Back
+            </h2>
+            <p className="mt-2 text-sm font-Poppins text-gray-600">
+              Please sign in to your account
+            </p>
+          </div>
+          <div>
+            <Image src={lockImage} alt='lockimage' height={100} width={100} />
+          </div>
         </motion.div>
 
         {/* Login Form */}
-        <motion.form onSubmit={handleSubmit(submitForm)} className="mt-8 space-y-6" variants={itemVariants}>
+        <motion.form onSubmit={handleSubmit(submitForm)} className="mt-6 space-y-6" variants={itemVariants}>
           {/* Email Input */}
           <motion.div variants={itemVariants}>
             <label htmlFor="email" className="block text-sm font-Nunito text-gray-700">
               Email address
             </label>
             <div className="mt-1">
-          
+
               <input
                 id="email"
                 name="email"
@@ -154,7 +160,7 @@ const Login = () => {
                   required: "Email is required.",
                 })}
                 className={clsx("appearance-none block  placeholder:text-sm w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none  transition duration-150 ease-in-out",
-                 errors.email ?"border-red-500" : " focus:ring-indigo-500 focus:border-indigo-500"
+                  errors.email ? "border-red-500" : " focus:ring-indigo-500 focus:border-indigo-500"
                 )}
                 placeholder="Enter your email"
               />
@@ -198,12 +204,12 @@ const Login = () => {
             </div>
             {errors.password && (<p className='text-red-500 flex text-[12px] px-1 py-1'><AlertCircle className="h-4 w-4 mr-1" />{errors.password.message}</p>)}
             {remainingTime && (
-             
-                <p className="text-red-500 flex text-[12px] px-1 py-1">
-                  <AlertCircle className="h-4 w-4 mr-1" />
-                  Account locked. Try again in {remainingTime}
-                </p>
-              
+
+              <p className="text-red-500 flex text-[12px] px-1 py-1">
+                <AlertCircle className="h-4 w-4 mr-1" />
+                Account locked. Try again in {remainingTime}
+              </p>
+
             )}
           </motion.div>
 
@@ -222,8 +228,8 @@ const Login = () => {
                 type="button"
                 onClick={refreshCaptcha}
                 className="text-sm text-indigo-600 hover:text-indigo-500 font-medium"
-                  
-               
+
+
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -305,7 +311,7 @@ const Login = () => {
           whileTap={{ scale: 0.95 }}
         >
           <p className="text-sm text-gray-600">
-             not have an account?
+            Do not have an account?
             <Link href={REGISTER_ROUTE} className="font-medium hover:underline text-indigo-600 hover:text-indigo-500">
               Sign up
             </Link>
