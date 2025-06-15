@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import Spinner from './Spinner';
-import { getCaptchaNumber } from '@/api/auth';
+import { getCaptchaByString } from '@/api/auth';
 import Link from 'next/link';
 import { DASHBOARD_ROUTE, FORGOTPASSWORD_ROUTE, REGISTER_ROUTE } from '@/routes/route';
 import { clsx } from 'clsx';
@@ -28,7 +28,7 @@ const Login = () => {
   const { lockTime, remainingTime } = useSelector((state) => state.lock);
 
   function refreshCaptcha() {
-    getCaptchaNumber().then((data) => {
+    getCaptchaByString().then((data) => {
       setQuestion(data.question);
       setCorrectAnswer(data.answer);
     }).catch(error => {
@@ -242,7 +242,7 @@ const Login = () => {
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 400 }}
               >
-                <p className='text-sm'>{question}</p>
+                <p className='text-md italic '>{question}</p>
               </motion.div>
               <input
                 id="captcha"

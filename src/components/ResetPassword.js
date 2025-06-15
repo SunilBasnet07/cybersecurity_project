@@ -1,13 +1,13 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Lock, AlertCircle, Check, X, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, Lock, AlertCircle, Check, X, ArrowLeft, RefreshCw } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { PASSWORD_REGEX } from '@/constants/regex';
 import Link from 'next/link';
 import { LOGIN_ROUTE } from '@/routes/route';
 import toast from 'react-hot-toast';
-import { resetPassword } from '@/api/auth';
+import { getCaptchaByString, resetPassword } from '@/api/auth';
 import { useRouter } from 'next/navigation';
 import Spinner from './Spinner';
 import { clsx } from 'clsx';
@@ -19,6 +19,8 @@ const ResetPassword = ({ userId, otp }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isReset, setIsReset] = useState(false);
   const [loading, setLoading] = useState(false);
+    const [question, setQuestion] = useState(null);
+    const [correctAnswer, setCorrectAnswer] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState({
     length: false,
     uppercase: false,
@@ -83,10 +85,24 @@ const ResetPassword = ({ userId, otp }) => {
     }
   };
 
+
+    function refreshCaptcha() {
+    getCaptchaByString().then((data) => {
+      setQuestion(data.question);
+      setCorrectAnswer(data.answer);
+    }).catch(error => {
+      console.log(error.message);
+    })
+  }
+
+  useEffect(() => {
+    refreshCaptcha();
+  }, []);
+
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      await resetPassword(userId, otp, data);
+      await resetPassword(userId, otp, {...data,correctAnswer});
 
       setIsReset(true);
       toast.success("Password reset successfully!", {
@@ -323,6 +339,53 @@ const ResetPassword = ({ userId, otp }) => {
                 </p>
               )}
             </motion.div>
+                      {/* Captcha Section */}
+          <motion.div
+            className="bg-gray-50 p-4 rounded-lg"
+            variants={itemVariants}
+            whileHover={{ scale: 1.01 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="captcha" className="block text-sm font-medium text-gray-700">
+                Text Captcha
+              </label>
+              <motion.button
+                type="button"
+                onClick={refreshCaptcha}
+                className="text-sm text-indigo-600 hover:text-indigo-500 font-medium"
+
+
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <RefreshCw className='h-4 w-4' />
+              </motion.button>
+            </div>
+            <div className="flex items-center space-x-4">
+              <motion.div
+                className="flex-1 bg-white p-3 rounded border border-gray-200 text-center font-mono text-lg tracking-wider"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 400 }}
+              >
+                <p className='text-md italic '>{question}</p>
+              </motion.div>
+              <input
+                id="captcha"
+                name="captcha"
+                type="text"
+                {...register("captchaAnswer", {
+                  required: "Captcha is required."
+                })}
+                className={clsx("flex-1 appearance-none block px-3 py-2 border border-gray-300 placeholder:text-sm rounded-md shadow-sm placeholder-gray-400 focus:outline-none  transition duration-150 ease-in-out",
+                  errors.captchaAnswer ? "border-red-500 " : " focus:ring-indigo-500  focus:border-indigo-500"
+                )}
+                placeholder="Enter captcha"
+              />
+
+            </div>
+            {errors.captchaAnswer && (<p className='text-red-500 flex justify-center ml-10 text-[12px] px-1 py-1'>  <AlertCircle className="h-4 w-4 mr-1" />{errors.captchaAnswer.message}</p>)}
+          </motion.div>
 
             {/* Submit Button */}
             <motion.div variants={itemVariants}>

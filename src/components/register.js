@@ -7,7 +7,7 @@ import { EMAIL_REGEX, PASSWORD_REGEX } from '@/constants/regex';
 import toast from 'react-hot-toast';
 import Spinner from './Spinner';
 import OTPPopup from './OTPPopup';
-import { signUp, getCaptchaByString } from '@/api/auth';
+import { signUp, getCaptchaNumber } from '@/api/auth';
 import { useDispatch } from 'react-redux';
 import { getEmail } from '@/redux/auth/authSlice';
 import { clsx } from 'clsx';
@@ -40,7 +40,7 @@ const Register = () => {
 
 
   function refreshCaptcha() {
-    getCaptchaByString().then((data) => {
+      getCaptchaNumber().then((data) => {
       setQuestion(data.question);
       setCorrectAnswer(data.answer);
     }).catch(error => {
@@ -428,13 +428,14 @@ const Register = () => {
             <div className="flex items-center space-x-4">
               <motion.div
                 className="flex-1 bg-white p-3 rounded border border-gray-200 text-center font-mono text-lg tracking-wider"
-                whileHover={{ scale: 1.02 }}
+              
                 transition={{ type: "spring", stiffness: 400 }}
               >
 
                 <p className='text-md italic'>{question}</p>
               </motion.div>
-              <input
+        
+              <input 
                 id="captcha"
                 name="captcha"
                 type="text"
