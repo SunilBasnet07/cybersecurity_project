@@ -20,6 +20,7 @@ import lockImage from '@/image/lockimage.png'
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
   const [isOTPOpen, setIsOTPOpen] = useState(false);
   const dispatch = useDispatch();
   const [question, setQuestion] = useState(null);
@@ -462,7 +463,9 @@ const Register = () => {
               id="terms"
               name="terms"
               type="checkbox"
+              checked= {isChecked}
               required
+              onChange={()=>setIsChecked(!isChecked)}
               className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
             />
             <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">
@@ -481,7 +484,7 @@ const Register = () => {
           <motion.div className="mt-6" variants={itemVariants}>
             <motion.button
               type="submit"
-              disabled={loading}
+              disabled={loading || !isChecked}
               className="w-full disabled:cursor-not-allowed gap-2 disabled:bg-slate-200 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
