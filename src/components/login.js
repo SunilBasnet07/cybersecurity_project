@@ -58,7 +58,7 @@ const Login = () => {
           if (userData.payload && userData.payload.includes("Account locked. Email sent.")) {
             // Set lock time to 5 minutes from now
             const lockEndTime = new Date();
-            lockEndTime.setMinutes(lockEndTime.getMinutes() + 1);
+            lockEndTime.setMinutes(lockEndTime.getMinutes() + 3);
             dispatch(setLockTime(lockEndTime.toISOString()));
           }
         }

@@ -1,20 +1,13 @@
 'use client'
 import baseApiUrl from "@/config/apiUrl";
-
-import { userToken } from "./token";
 import axios from "axios";
 // import { userToken } from "./token";
-
-
-
-
-
 const signIn = async (data) => {
-
-
-    const response = await axios.post(`${baseApiUrl}/api/auth/login`, data);
+ const response = await axios.post(`${baseApiUrl}/api/auth/login`, data);
     return response;
 }
+
+
 const signUp = async (data) => {
 
     const response = await axios.post(`${baseApiUrl}/api/auth/register`, data);
